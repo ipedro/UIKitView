@@ -12,7 +12,7 @@ import SwiftUI
 /// - Note: Size calculations are performed by calling [systemLayoutSizeFitting(_:withHorizontalFittingPriority:verticalFittingPriority:)](https://developer.apple.com/documentation/uikit/uiview/1622623-systemlayoutsizefitting)
 ///
 /// - Parameters:
-///   - layout: The preferred layout configuration.
+///   - layout: The proposed layout.
 ///   - content: The view that you want to display in SwiftUI
 ///   - onAppear: An action to perform before this view is created.
 ///   - onStateChange: Called when the state of the specified view has new information from SwiftUI.
@@ -20,12 +20,12 @@ import SwiftUI
 ///
 /// - Returns: A UIKit view wrapped in an opaque SwiftUI view.
 @ViewBuilder
-public func UIKitView<V: UIView>(
+public func UIKitView<UIViewType: UIView>(
     layout: UIKitViewProposedLayout = .compressedLayout(),
-    content: @escaping () -> V,
-    onAppear: _UIKitViewRepresenting<V>.Callback? = .none,
-    onStateChange: _UIKitViewRepresenting<V>.Callback? = .none,
-    onDisappear: _UIKitViewRepresenting<V>.Callback? = .none
+    content: @escaping () -> UIViewType,
+    onAppear: _UIKitViewRepresenting<UIViewType>.Callback? = .none,
+    onStateChange: _UIKitViewRepresenting<UIViewType>.Callback? = .none,
+    onDisappear: _UIKitViewRepresenting<UIViewType>.Callback? = .none
 ) -> some View {
     if #available(iOS 16, *) {
         _UIKitViewRepresenting(
