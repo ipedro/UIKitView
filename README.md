@@ -10,12 +10,13 @@ Sample usage:
 
   // complete declaration
   UIKitView(layout: .compressedLayout()) {
-      UIButton()
-  } onAppear: { button in
-      button.backgroundColor = .red
-  } onStateChange: { button in
+      UILabel()
+  } onAppear: { label in
+      label.text = "my text"
+      label.textColor = .systemRed
+  } onStateChange: { label in
       // react to state changes
-  } onDisappear: { button in
+  } onDisappear: { label in
       // called when view is deinitialized
   }
 ```
