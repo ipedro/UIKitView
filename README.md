@@ -2,7 +2,7 @@
 
 Sample usage:
 
-```
+```swift
   // abbreviated declaration
   UIKitView {
       UILabel()
