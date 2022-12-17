@@ -1,14 +1,14 @@
 import SwiftUI
 
-public struct HorizontalGeometryReader<Content: View> : View {
+struct HorizontalGeometryReader<Content: View> : View {
     var content: (CGFloat) -> Content
     @State private var width: CGFloat = .zero
 
-    public init(@ViewBuilder content: @escaping (CGFloat) -> Content) {
+    init(@ViewBuilder content: @escaping (CGFloat) -> Content) {
         self.content = content
     }
 
-    public var body: some View {
+    var body: some View {
         content(width)
             // without explicitly setting frame, the view doesn't resize after rotation :shrug:
             .frame(minWidth: .zero)
