@@ -62,6 +62,7 @@ import SwiftUI
 public struct UIKitView<V: UIView>: View {
     /// A closure that is called after a view lifecycle event
     public typealias Callback = (V) -> Void
+    /// A UIKit view object.
     public typealias Content = () -> V
     
     var sizing: UIKitViewSizingStrategy
