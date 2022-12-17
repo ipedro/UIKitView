@@ -7,7 +7,7 @@ final class UIKitViewTests: XCTestCase {
     func testExample() throws {
         let someView = UIKitView {
             UILabel()
-        } onAppear: {
+        } then: {
             $0.text = "My text"
         }
         

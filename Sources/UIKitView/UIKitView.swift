@@ -45,34 +45,34 @@ public struct UIKitView<V: UIView>: View {
     var sizing: UIKitViewSizingStrategy
     var layout: UIKitViewProposedLayout
     var content: Content
-    var onAppear: Callback?
+    var onStart: Callback?
     var onStateChange: Callback?
-    var onDisappear: Callback?
+    var onFinish: Callback?
     
 /// Creates a view that contains a UIKit view object.
 /// - Parameters:
 ///   - layout: The type of box should de view fit into. Default is ``UIKitViewProposedLayout/compressed(horizontalFit:verticalFit:)``
 ///   - sizing: Defines the view sizing strategy. Default is ``UIKitViewSizingStrategy/flexible()``
 ///   - content: The view object to be displayed in SwiftUI.
-///   - onAppear: (Optional) An action to perform before this view is created.
+///   - onStart: (Optional) An action to perform right after the view is created. Executes only once per instance.
 ///   - onStateChange: (Optional) Called when the state of the specified view has new information from SwiftUI.
-///   - onDisappear: (Optional) An action that is performed before this view is dismantled.
+///   - onFinish: (Optional) An action that is performed before this view is dismantled.
 ///
 /// - Returns: A UIKit view wrapped in an opaque SwiftUI view.
     public init(
         sizing: UIKitViewSizingStrategy = .flexible(),
         layout: UIKitViewProposedLayout = .compressed(),
         content: @escaping Content,
-        onAppear: Callback? = .none,
-        onStateChange: Callback? = .none,
-        onDisappear: Callback? = .none
+        then onStart: Callback? = .none,
+        onFinish: Callback? = .none,
+        onStateChange: Callback? = .none
     ) {
         self.sizing = sizing
         self.layout = layout
         self.content = content
-        self.onAppear = onAppear
+        self.onStart = onStart
         self.onStateChange = onStateChange
-        self.onDisappear = onDisappear
+        self.onFinish = onFinish
     }
     
     public var body: some View {
@@ -83,8 +83,8 @@ public struct UIKitView<V: UIView>: View {
                 _UIKitViewRepresenting(
                     layout: layout,
                     content: content,
-                    onAppear: onAppear,
-                    onDisappear: onDisappear,
+                    onStart: onStart,
+                    onFinish: onFinish,
                     onStateChange: onStateChange)
             } else {
                 // On earlier OS versions we rely on a geometry reader
@@ -94,8 +94,8 @@ public struct UIKitView<V: UIView>: View {
                         layout: .init(
                             width: .init(width, priority: .highestSizeLevel)),
                         content: content,
-                        onAppear: onAppear,
-                        onDisappear: onDisappear,
+                        onStart: onStart,
+                        onFinish: onFinish,
                         onStateChange: onStateChange)
                 }
             }
@@ -108,24 +108,27 @@ public struct UIKitView<V: UIView>: View {
 
 struct UIKitView_Previews: PreviewProvider {
     static var previews: some View {
-        UIKitView {
-            let label = UILabel()
-            label.font = .preferredFont(forTextStyle: .title1)
-            label.text = "Hello World i'm tom hanks"
-            return label
+        VStack {
+            UIKitView {
+                let label = UILabel()
+                label.font = .preferredFont(forTextStyle: .title1)
+                label.text = "Hello World"
+                return label
+            }
+            
+            UIKitView {
+                UILabel()
+            } then: {
+                $0.font = .preferredFont(forTextStyle: .title1)
+                $0.text = "Hello World"
+            }
+            
+            UIKitView {
+                UIButton(type: .roundedRect)
+            } then: {
+                $0.setTitle("I'm a Button", for: .normal)
+            }
         }
-        
-        UIKitView {
-            UILabel()
-        } onAppear: {
-            $0.font = .preferredFont(forTextStyle: .title1)
-            $0.text = "Hello Again"
-        }
-        
-        UIKitView {
-            UIButton(type: .roundedRect)
-        } onAppear: {
-            $0.setTitle("I'm a Button", for: .normal)
-        }
+        .padding()
     }
 }

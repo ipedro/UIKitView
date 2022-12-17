@@ -5,8 +5,8 @@ public struct _UIKitViewRepresenting<UIViewType: UIView>: UIViewRepresentable {
 
     var layout: UIKitViewProposedLayout
     var content: UIKitView<UIViewType>.Content
-    var onAppear: UIKitView<UIViewType>.Callback?
-    var onDisappear: UIKitView<UIViewType>.Callback?
+    var onStart: UIKitView<UIViewType>.Callback?
+    var onFinish: UIKitView<UIViewType>.Callback?
     var onStateChange: UIKitView<UIViewType>.Callback?
 
     /// Creates the custom instance that you use to communicate changes from
@@ -14,8 +14,8 @@ public struct _UIKitViewRepresenting<UIViewType: UIView>: UIViewRepresentable {
     public func makeCoordinator() -> Coordinator {
         _UIKitViewCoordinator(
             content: content,
-            onAppear: onAppear,
-            onDisappear: onDisappear)
+            onStart: onStart,
+            onFinish: onFinish)
     }
 
     /// Creates the view object and configures its initial state.
