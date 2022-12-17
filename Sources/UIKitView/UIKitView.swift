@@ -108,27 +108,42 @@ public struct UIKitView<V: UIView>: View {
 
 struct UIKitView_Previews: PreviewProvider {
     static var previews: some View {
-        VStack {
-            UIKitView {
-                let label = UILabel()
-                label.font = .preferredFont(forTextStyle: .title1)
-                label.text = "Hello World"
-                return label
+        ScrollView {
+            VStack(spacing: 48) {
+                UIKitView {
+                    UIButton(type: .roundedRect)
+                } then: {
+                    $0.setTitle("I'm a Button", for: .normal)
+                    $0.backgroundColor = .systemTeal
+                    $0.setTitleColor(.white, for: .normal)
+                    $0.layer.cornerRadius = 12
+                }
+                .padding()
+                
+                UIKitView {
+                    let label = UILabel()
+                    label.numberOfLines = 0
+                    label.text = "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
+                    return label
+                }
+                
+                HStack {
+                    UIKitView {
+                        UILabel()
+                    } then: {
+                        $0.numberOfLines = 0
+                        $0.text = "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
+                    }
+                    UIKitView {
+                        UILabel()
+                    } then: {
+                        $0.numberOfLines = 0
+                        $0.text = "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
+                    }
+                }
+                
             }
-            
-            UIKitView {
-                UILabel()
-            } then: {
-                $0.font = .preferredFont(forTextStyle: .title1)
-                $0.text = "Hello World"
-            }
-            
-            UIKitView {
-                UIButton(type: .roundedRect)
-            } then: {
-                $0.setTitle("I'm a Button", for: .normal)
-            }
+            .padding()
         }
-        .padding()
     }
 }

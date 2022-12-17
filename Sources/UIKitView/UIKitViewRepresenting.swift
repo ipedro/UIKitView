@@ -37,17 +37,17 @@ public struct _UIKitViewRepresenting<UIViewType: UIView>: UIViewRepresentable {
     }
 
     /// Returns the size of the composite view, given a proposed size and the view’s subviews.
-    @available(iOS 16.0, *)
-    public func sizeThatFits(_ size: ProposedViewSize,
-                             uiView: _UIKitViewLayoutContainer<UIViewType>,
-                             context: Context) -> CGSize? {
-        let layout = UIKitViewProposedLayout(
-            width: resolve(either: (size.width, .highestSizeLevel), or: layout.width),
-            height: resolve(either: (size.height, .fittingSizeLevel), or: layout.height))
-
-        let sizeThatFits = uiView.systemLayoutFittingSize(layout)
-        return sizeThatFits
-    }
+//    @available(iOS 16.0, *)
+//    public func sizeThatFits(_ size: ProposedViewSize,
+//                             uiView: _UIKitViewLayoutContainer<UIViewType>,
+//                             context: Context) -> CGSize? {
+//        let layout = UIKitViewProposedLayout(
+//            width: resolve(either: (size.width, .highestSizeLevel), or: layout.width),
+//            height: resolve(either: (size.height, .fittingSizeLevel), or: layout.height))
+//
+//        let sizeThatFits = uiView.systemLayoutFittingSize(layout)
+//        return sizeThatFits
+//    }
 
     private func resolve(either proposal: (CGFloat?, UILayoutPriority),
                          or original: UIKitViewProposedLayout.Size) -> UIKitViewProposedLayout.Size {

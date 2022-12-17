@@ -19,6 +19,12 @@ public struct UIKitViewProposedLayout: Equatable {
         height = .init(size.height, priority: verticalFit)
     }
     
+    /// Fit the container to the size of the device that the app is running on.
+    public static func sizeThatFits(horizontalFit: UILayoutPriority = .fittingSizeLevel,
+                                   verticalFit: UILayoutPriority = .fittingSizeLevel) -> Self {
+        .init(size: UIScreen.main.bounds.size, horizontalFit: horizontalFit, verticalFit: verticalFit)
+    }
+    
     /// The narrowest and shortest size. Equivalent to `systemLayoutFittingSize(UIView.layoutFittingCompressedSize)`.
     ///
     /// The layout priority for each axis is used to indicate which constraints are more important to the constraint-based layout system, allowing the system to make appropriate tradeoffs when satisfying the constraints of the system as a whole.
