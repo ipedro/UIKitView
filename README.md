@@ -6,6 +6,8 @@ https://ipedro.github.io/UIKitView/documentation/uikitview/
 
 Sample usage:
 
+![Sample usage](./Docs/sample_usage.png)
+
 ```swift
 var body: some View {
     ScrollView {
