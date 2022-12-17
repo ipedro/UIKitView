@@ -6,7 +6,7 @@ import SwiftUI
 ///
 /// During the layout of the view hierarchy, each view proposes a size to each child view it contains. Normally the child view doesn’t need a fixed size so it accepts and conforms to the size offered by the parent.
 ///
-/// You can also choose to fix the size of either axis at it's ideal size. This can result in the view exceeding the parent’s bounds, which may or may not be the effect you want. It's the equivalent of `.fixedSize(horizontal:vertical:)`.
+/// You can also choose to fix the size of either axis at it's ideal size. This can result in the view exceeding the parent’s bounds, which may or may not be the effect you want. It's the equivalent of `SwiftUI.View.fixedSize(horizontal:vertical:)`.
 ///
 /// Is your view still isn't behaving as expected?
 ///
@@ -22,14 +22,21 @@ import SwiftUI
 ///     height: .expandedSize())
 /// ```
 ///
-/// Still here? Then let's talk about
+/// or
+///
+/// ```swift
+/// UIKitViewProposedLayout(
+///     width: .compressedSize(priority: .defaultHigh),
+///     height: .expandedSize())
+/// ```
+///
+/// And if even this doesn't solve it, don't worry.
 ///
 /// ## Let's fix your view
 ///
 /// Auto Layout relies not only on layout constraints, but also in other relations such as [content compression resistance priority](https://developer.apple.com/documentation/uikit/uiview/1622465-contentcompressionresistanceprio) and [content hugging priority](https://developer.apple.com/documentation/uikit/uiview/1622556-contenthuggingpriority) – that determine how much it fights to retain its intrinsic content size when available space is less than or greater than it needs, respectively. Play around with them.
 ///
 /// - Note: Size calculations are performed by calling [systemLayoutSizeFitting(_:withHorizontalFittingPriority:verticalFittingPriority:)](https://developer.apple.com/documentation/uikit/uiview/1622623-systemlayoutsizefitting)
-///
 public struct UIKitView<V: UIView>: View {
     /// A closure that is called after a view lifecycle event
     public typealias Callback = (V) -> Void
