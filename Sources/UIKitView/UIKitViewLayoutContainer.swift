@@ -5,9 +5,9 @@ import UIKit
 public final class _UIKitViewLayoutContainer<UIViewType: UIView>: UIView {
     let content: UIViewType
 
-    private(set) var contentLayout: UIKitViewProposedLayout?
+    private(set) var layout: UIKitViewProposedLayout?
 
-    private var contentSize = CGSize(
+    private var layoutSize = CGSize(
         width: UIView.noIntrinsicMetric,
         height: UIView.noIntrinsicMetric)
     init(_ content: UIViewType) {
@@ -28,7 +28,7 @@ public final class _UIKitViewLayoutContainer<UIViewType: UIView>: UIView {
         addSubview(content)
     }
 
-    public override var intrinsicContentSize: CGSize { contentSize }
+    public override var intrinsicContentSize: CGSize { layoutSize }
 
     public override func contentHuggingPriority(for axis: NSLayoutConstraint.Axis) -> UILayoutPriority {
         content.contentHuggingPriority(for: axis)
@@ -40,23 +40,23 @@ public final class _UIKitViewLayoutContainer<UIViewType: UIView>: UIView {
     
     public override func invalidateIntrinsicContentSize() {
         super.invalidateIntrinsicContentSize()
-        contentLayout = .none
+        layout = .none
     }
 
     @discardableResult
     public func systemLayoutFittingSize(_ proposal: UIKitViewProposedLayout) -> CGSize {
-        guard contentLayout != proposal else { return contentSize }
+        if layout == proposal { return layoutSize }
         
         let newValue = content.systemLayoutSizeFitting(
             proposal.size,
             withHorizontalFittingPriority: proposal.width.priority,
             verticalFittingPriority: proposal.height.priority)
         
-        if newValue != self.contentSize,
+        if newValue != self.layoutSize,
            newValue.height != .infinity,
            newValue.width != .infinity {
-            self.contentSize = newValue
-            self.contentLayout = proposal
+            self.layoutSize = newValue
+            self.layout = proposal
         }
         
         return newValue
