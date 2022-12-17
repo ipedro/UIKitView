@@ -14,7 +14,7 @@ import SwiftUI
 ///
 /// If your view doesn't look as expected out-of-the box, try changing layout priorities and the target sizes.
 ///
-/// If you expect your view to be as big as possible in some direction, ``UIKitViewProposedLayout/expandedLayout(horizontalFit:verticalFit:)`` might be a better option. However if you need that a view is as small as possible horizontally, but grows vertically you could write the following:
+/// If you expect your view to be as big as possible in some direction, ``UIKitViewProposedLayout/expanded(horizontalFit:verticalFit:)`` might be a better option. However if you need that a view is as small as possible horizontally, but grows vertically you could write the following:
 ///
 /// ```swift
 /// UIKitViewProposedLayout(
@@ -30,6 +30,19 @@ import SwiftUI
 ///
 /// - Note: Size calculations are performed by calling [systemLayoutSizeFitting(_:withHorizontalFittingPriority:verticalFittingPriority:)](https://developer.apple.com/documentation/uikit/uiview/1622623-systemlayoutsizefitting)
 ///
+public struct UIKitView<V: UIView>: View {
+    /// A closure that is called after a view lifecycle event
+    public typealias Callback = (V) -> Void
+    public typealias Content = () -> V
+    
+    var sizing: UIKitViewSizingStrategy
+    var layout: UIKitViewProposedLayout
+    var content: Content
+    var onAppear: Callback?
+    var onStateChange: Callback?
+    var onDisappear: Callback?
+    
+/// Creates a view that contains a UIKit view object.
 /// - Parameters:
 ///   - layout: The type of box should de view fit into. Default is ``UIKitViewProposedLayout/compressed(horizontalFit:verticalFit:)``
 ///   - sizing: Defines the view sizing strategy. Default is ``UIKitViewSizingStrategy/flexible()``
@@ -39,40 +52,51 @@ import SwiftUI
 ///   - onDisappear: (Optional) An action that is performed before this view is dismantled.
 ///
 /// - Returns: A UIKit view wrapped in an opaque SwiftUI view.
-@ViewBuilder
-public func UIKitView<UIViewType: UIView>(
-    sizing: UIKitViewSizingStrategy = .flexible(),
-    layout: UIKitViewProposedLayout = .compressed(),
-    content: @escaping () -> UIViewType,
-    onAppear: _UIKitViewRepresenting<UIViewType>.Callback? = .none,
-    onStateChange: _UIKitViewRepresenting<UIViewType>.Callback? = .none,
-    onDisappear: _UIKitViewRepresenting<UIViewType>.Callback? = .none
-) -> some View {
-    Group {
-        if #available(iOS 16, *) {
-            _UIKitViewRepresenting(
-                layout: layout,
-                content: content,
-                onAppear: onAppear,
-                onDisappear: onDisappear,
-                onStateChange: onStateChange)
-        } else {
-            HorizontalGeometryReader { width in
+    public init(
+        sizing: UIKitViewSizingStrategy = .flexible(),
+        layout: UIKitViewProposedLayout = .compressed(),
+        content: @escaping Content,
+        onAppear: Callback? = .none,
+        onStateChange: Callback? = .none,
+        onDisappear: Callback? = .none
+    ) {
+        self.sizing = sizing
+        self.layout = layout
+        self.content = content
+        self.onAppear = onAppear
+        self.onStateChange = onStateChange
+        self.onDisappear = onDisappear
+    }
+    
+    public var body: some View {
+        Group {
+            // We rely on `sizeThatFits(_:uiView:context:)` that was introduced in iOS 16
+            // https://developer.apple.com/documentation/swiftui/uiviewrepresentable/sizethatfits(_:uiview:context:)-9ojeu
+            if #available(iOS 16, *) {
                 _UIKitViewRepresenting(
-                    layout: .init(
-                        width: .init(
-                            width,
-                            priority: .compressedSizeLevel)),
+                    layout: layout,
                     content: content,
                     onAppear: onAppear,
                     onDisappear: onDisappear,
                     onStateChange: onStateChange)
+            } else {
+                // On earlier OS versions we rely on a geometry reader
+                // to read the container'shorizontal axis
+                HorizontalGeometryReader { width in
+                    _UIKitViewRepresenting(
+                        layout: .init(
+                            width: .init(width, priority: .highestSizeLevel)),
+                        content: content,
+                        onAppear: onAppear,
+                        onDisappear: onDisappear,
+                        onStateChange: onStateChange)
+                }
             }
         }
+        .fixedSize(
+            horizontal: sizing.isHorizontalSizeFixed,
+            vertical: sizing.isVerticalSizeFixed)
     }
-    .fixedSize(
-        horizontal: sizing.isHorizontalSizeFixed,
-        vertical: sizing.isVerticalSizeFixed)
 }
 
 struct UIKitView_Previews: PreviewProvider {
@@ -80,7 +104,7 @@ struct UIKitView_Previews: PreviewProvider {
         UIKitView {
             let label = UILabel()
             label.font = .preferredFont(forTextStyle: .title1)
-            label.text = "Hello World"
+            label.text = "Hello World i'm tom hanks"
             return label
         }
         
