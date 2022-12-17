@@ -1,7 +1,7 @@
 import Foundation
 
 /// Defines the sizing strategy of a view object.
-public struct UIKitViewProposedSize {
+public struct UIKitViewSizingStrategy {
     var isHorizontalSizeFixed: Bool = false
     var isVerticalSizeFixed: Bool = false
     
