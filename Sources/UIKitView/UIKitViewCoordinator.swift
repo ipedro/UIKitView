@@ -2,17 +2,16 @@ import UIKit
 
 /// Responsible for managing a UIKit view lifecycle and interfacing with SwiftUI.
 public final class _UIKitViewCoordinator<UIViewType: UIView> {
-    typealias Callback = _UIKitViewRepresenting<UIViewType>.Callback
     typealias LayoutContainer = _UIKitViewLayoutContainer<UIViewType>
 
     private(set) var layoutContainer: LayoutContainer?
-    private let content: () -> UIViewType
-    let onAppear: Callback?
-    let onDisappear: Callback?
+    private let content: UIKitView<UIViewType>.Content
+    let onAppear: UIKitView<UIViewType>.Callback?
+    let onDisappear: UIKitView<UIViewType>.Callback?
 
-    init(content: @escaping @autoclosure () -> UIViewType,
-         onAppear: Callback?,
-         onDisappear: Callback?) {
+    init(content: @escaping UIKitView<UIViewType>.Content,
+         onAppear: UIKitView<UIViewType>.Callback?,
+         onDisappear: UIKitView<UIViewType>.Callback?) {
         self.content = content
         self.onAppear = onAppear
         self.onDisappear = onDisappear

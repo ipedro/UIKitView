@@ -1,19 +1,19 @@
 import SwiftUI
 
 public struct _UIKitViewRepresenting<UIViewType: UIView>: UIViewRepresentable {
-    public typealias Callback = (UIViewType) -> Void
+    public typealias Coordinator = _UIKitViewCoordinator<UIViewType>
 
     var layout: UIKitViewProposedLayout
-    var content: () -> UIViewType
-    var onAppear: Callback?
-    var onDisappear: Callback?
-    var onStateChange: Callback?
+    var content: UIKitView<UIViewType>.Content
+    var onAppear: UIKitView<UIViewType>.Callback?
+    var onDisappear: UIKitView<UIViewType>.Callback?
+    var onStateChange: UIKitView<UIViewType>.Callback?
 
     /// Creates the custom instance that you use to communicate changes from
     /// your view to other parts of your SwiftUI interface.
-    public func makeCoordinator() -> _UIKitViewCoordinator<UIViewType> {
+    public func makeCoordinator() -> Coordinator {
         _UIKitViewCoordinator(
-            content: content(),
+            content: content,
             onAppear: onAppear,
             onDisappear: onDisappear)
     }
@@ -32,7 +32,7 @@ public struct _UIKitViewRepresenting<UIViewType: UIView>: UIViewRepresentable {
 
     /// Cleans up the presented UIKit view (and coordinator) in anticipation of their removal.
     public static func dismantleUIView(_ container: _UIKitViewLayoutContainer<UIViewType>,
-                                       coordinator: _UIKitViewCoordinator<UIViewType>) {
+                                       coordinator: Coordinator) {
         coordinator.finish()
     }
 
@@ -42,7 +42,7 @@ public struct _UIKitViewRepresenting<UIViewType: UIView>: UIViewRepresentable {
                              uiView: _UIKitViewLayoutContainer<UIViewType>,
                              context: Context) -> CGSize? {
         let layout = UIKitViewProposedLayout(
-            width: resolve(either: (size.width, .compressedSizeLevel), or: layout.width),
+            width: resolve(either: (size.width, .highestSizeLevel), or: layout.width),
             height: resolve(either: (size.height, .fittingSizeLevel), or: layout.height))
 
         let sizeThatFits = uiView.systemLayoutFittingSize(layout)
