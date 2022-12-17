@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "swift-uikitview",
+    name: "UIKitView",
     platforms: [
         .iOS(.v14),
         .macOS(.v10_15),
