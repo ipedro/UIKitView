@@ -18,7 +18,7 @@ public final class _UIKitViewCoordinator<UIViewType: UIView> {
         self.onDisappear = onDisappear
     }
 
-    func makeLayoutContainer() -> LayoutContainer {
+    func makeUIView() -> LayoutContainer {
         guard let cached = layoutContainer else {
             let view = LayoutContainer(content())
             onAppear?(view.content)
@@ -26,5 +26,11 @@ public final class _UIKitViewCoordinator<UIViewType: UIView> {
             return view
         }
         return cached
+    }
+    
+    func finish() {
+        guard let content = layoutContainer?.content else { return }
+        onDisappear?(content)
+        layoutContainer = nil
     }
 }

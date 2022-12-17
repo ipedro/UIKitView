@@ -10,13 +10,10 @@ public final class _UIKitViewLayoutContainer<UIViewType: UIView>: UIView {
     private var contentSize = CGSize(
         width: UIView.noIntrinsicMetric,
         height: UIView.noIntrinsicMetric)
-
     init(_ content: UIViewType) {
         self.content = content
         super.init(frame: content.frame)
-    
         setupViews()
-        setupConstraints()
     }
 
     @available(*, unavailable)
@@ -25,23 +22,22 @@ public final class _UIKitViewLayoutContainer<UIViewType: UIView>: UIView {
     }
 
     private func setupViews() {
+        autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        content.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         clipsToBounds = true
         addSubview(content)
     }
 
-    public func setupConstraints() {
-        [content.leadingAnchor.constraint(equalTo: leadingAnchor),
-         content.topAnchor.constraint(equalTo: topAnchor),
-         content.trailingAnchor.constraint(equalTo: trailingAnchor),
-         content.bottomAnchor.constraint(equalTo: bottomAnchor)]
-            .forEach {
-                $0.priority = .almostRequired
-                $0.isActive = true
-            }
-    }
-
     public override var intrinsicContentSize: CGSize { contentSize }
 
+    public override func contentHuggingPriority(for axis: NSLayoutConstraint.Axis) -> UILayoutPriority {
+        content.contentHuggingPriority(for: axis)
+    }
+    
+    public override func contentCompressionResistancePriority(for axis: NSLayoutConstraint.Axis) -> UILayoutPriority {
+        content.contentCompressionResistancePriority(for: axis)
+    }
+    
     public override func invalidateIntrinsicContentSize() {
         super.invalidateIntrinsicContentSize()
         contentLayout = .none

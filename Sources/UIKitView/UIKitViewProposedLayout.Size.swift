@@ -17,30 +17,27 @@ public extension UIKitViewProposedLayout {
         }
 
         public init(_ value: CGFloat,
-                    _ priority: UILayoutPriority = .fittingSizeLevel) {
-            self.value = value
-            self.priority = priority
-        }
-        
-        public init?(_ value: CGFloat?,
-                    _ priority: UILayoutPriority = .fittingSizeLevel) {
-            guard let value = value else { return nil }
+                    priority: UILayoutPriority = .fittingSizeLevel) {
             self.value = value
             self.priority = priority
         }
 
-        /// Equivalent to `UIView.layoutFittingCompressedSize` (0)
+        /// As small as possible. Equivalent to `UIView.layoutFittingCompressedSize.width`.
+        ///
+        /// The layout priority for each axis is used to indicate which constraints are more important to the constraint-based layout system, allowing the system to make appropriate tradeoffs when satisfying the constraints of the system as a whole.
         ///
         /// - Parameter priority: The priority for constraints. Specify fittingSizeLevel to get a size that is as close as possible to the targetSize.
         public static func compressedSize(_ priority: UILayoutPriority = .fittingSizeLevel) -> Self {
-            .init(UIView.layoutFittingCompressedSize.height, priority)
+            .init(UIView.layoutFittingCompressedSize.width, priority: priority)
         }
 
-        /// Equivalent to `UIView.layoutFittingExpandedSize`
+        /// As large as possible. Equivalent to `UIView.layoutFittingExpandedSize.width`.
+        ///
+        /// The layout priority for each axis is used to indicate which constraints are more important to the constraint-based layout system, allowing the system to make appropriate tradeoffs when satisfying the constraints of the system as a whole.
         ///
         /// - Parameter priority: The priority for constraints. Specify fittingSizeLevel to get a size that is as close as possible to the targetSize.
         public static func expandedSize(_ priority: UILayoutPriority = .fittingSizeLevel) -> Self {
-            .init(UIView.layoutFittingExpandedSize.height, priority)
+            .init(UIView.layoutFittingExpandedSize.width, priority: priority)
         }
     }
 }
