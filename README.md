@@ -10,8 +10,8 @@ Sample usage:
 
 ```swift
 var body: some View {
-    ScrollView {
-        VStack {
+        ScrollView {
+        VStack(spacing: 24) {
             UIKitView {
                 UILabel()
             } then: {
@@ -22,42 +22,48 @@ var body: some View {
                     attributes: [
                         .underlineStyle: NSNumber(value: 1),
                         .font: UIFont.preferredFont(forTextStyle: .headline),
-                        .foregroundColor: UIColor.systemBackground
+                        .foregroundColor: UIColor.systemBackground,
+                        .backgroundColor: UIColor.systemPink
                     ]
                 )
             }
             .padding()
-            .background(Color.accentColor)
-            .cornerRadius(16)
+            .background(Color.primary.opacity(0.1))
+            .cornerRadius(24)
             
             UIKitView {
                 UIButton(type: .roundedRect)
             } then: {
+                $0.backgroundColor = .label.withAlphaComponent(0.1)
+                $0.showsTouchWhenHighlighted = true
                 $0.setTitle("I'm a button", for: .normal)
             }
+            .cornerRadius(12)
             .padding(.vertical)
             
-            HStack {
-                // Medium Body Regular Text
+            HStack(spacing: 24) {
+                // Body Text
                 Text("Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type.")
-                    .padding()
                 
-                // Should look exactly the same
+                // Should look and behave exactly the same
                 UIKitView {
                     UILabel()
                 } then: {
+                    $0.font = .preferredFont(forTextStyle: .body)
                     $0.adjustsFontForContentSizeCategory = true
                     $0.numberOfLines = 0
                     $0.text = "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type."
                 }
-                .padding()
             }
             
-            HStack {
+            HStack(spacing: 24) {
                 UIKitView {
-                    UIImageView(image: .init(systemName: "checkmark.seal.fill"))
+                    UIImageView(image: .init(systemName: "checkmark"))
+                } then: {
+                    $0.contentMode = .scaleAspectFit
                 }
-                .aspectRatio(contentMode: .fit)
+                .padding()
+                .background(Color.primary.opacity(0.1))
                 
                 // Should look exactly the same
                 UIKitView {
@@ -67,7 +73,6 @@ var body: some View {
                     $0.numberOfLines = 0
                     $0.text = "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type."
                 }
-                .padding()
             }
         }
         .padding()
