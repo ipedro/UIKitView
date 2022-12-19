@@ -22,9 +22,9 @@
 
 import UIKit
 
-public extension UIKitView.TargetSize {
-    /// A size proposal
-    struct Value: Equatable, ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral {
+public extension UIKitView {
+    /// A value with a particular priority.
+    struct LayoutFittingSize: Equatable, ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral {
         public var value: CGFloat
         public var priority: UILayoutPriority
         
@@ -38,35 +38,33 @@ public extension UIKitView.TargetSize {
             self.priority = .fittingSizeLevel
         }
         
+        /// Creates a proposal to fit a size with a particular priority.
         public init(_ value: CGFloat,
                     priority: UILayoutPriority = .fittingSizeLevel) {
             self.value = value
             self.priority = priority
         }
         
+        /// Creates an optional proposal to fit a size with a particular priority.
         public init?(_ value: CGFloat?,
-                    priority: UILayoutPriority = .fittingSizeLevel) {
+                     priority: UILayoutPriority = .fittingSizeLevel) {
             guard let value = value else { return nil }
             self.value = value
             self.priority = priority
         }
-        
-        /// As small as possible. Equivalent to `UIView.layoutFittingCompressedSize.width`.
-        ///
-        /// The layout priority for each axis is used to indicate which constraints are more important to the constraint-based layout system, allowing the system to make appropriate tradeoffs when satisfying the constraints of the system as a whole.
-        ///
-        /// - Parameter priority: The priority for constraints. Specify fittingSizeLevel to get a size that is as close as possible to the targetSize.
-        public static func compressedSize(_ priority: UILayoutPriority = .fittingSizeLevel) -> Self {
-            .init(UIView.layoutFittingCompressedSize.width, priority: priority)
-        }
-        
-        /// As large as possible. Equivalent to `UIView.layoutFittingExpandedSize.width`.
-        ///
-        /// The layout priority for each axis is used to indicate which constraints are more important to the constraint-based layout system, allowing the system to make appropriate tradeoffs when satisfying the constraints of the system as a whole.
-        ///
-        /// - Parameter priority: The priority for constraints. Specify fittingSizeLevel to get a size that is as close as possible to the targetSize.
-        public static func expandedSize(_ priority: UILayoutPriority = .fittingSizeLevel) -> Self {
-            .init(UIView.layoutFittingExpandedSize.width, priority: priority)
-        }
     }
+}
+
+public extension CGFloat {
+    /// As small as possible. Equivalent to `UIView.layoutFittingCompressedSize.width`.
+    static var compressedSize: CGFloat { UIView.layoutFittingCompressedSize.width }
+    /// As large as possible. Equivalent to `UIView.layoutFittingExpandedSize.width`.
+    static var expandedSize: CGFloat { UIView.layoutFittingExpandedSize.width }
+}
+
+public extension CGSize {
+    /// As small as possible. Equivalent to `UIView.layoutFittingCompressedSize`.
+    static var compressedSize: CGSize { UIView.layoutFittingCompressedSize }
+    /// As large as possible. Equivalent to `UIView.layoutFittingExpandedSize`.
+    static var expandedSize: CGSize { UIView.layoutFittingExpandedSize }
 }

@@ -23,7 +23,7 @@ import SwiftUI
 // SOFTWARE.
 
 extension UIKitView {
-    struct LayoutView: UIViewRepresentable {
+    struct LayoutContainer: UIViewRepresentable {
         var layout: ProposedLayout
         var content: Content
         var onStart: Callback?
@@ -56,23 +56,20 @@ extension UIKitView {
         /// Returns the size of the composite view, given a proposed size and the view’s subviews.
         @available(iOS 16.0, *)
         func sizeThatFits(_ size: ProposedViewSize, uiView layoutContainer: LayoutContainerView, context: Context) -> CGSize? {
-            let proposal = ProposedLayout(
-                traits: layout.traits,
-                targetSize: .init(
-                    width: resolve(
-                        either: .init(size.width, priority: layout.traits.layoutPriority),
-                        or: layout.targetSize.width),
-                    height: resolve(
-                        either: .init(size.height, priority: .fittingSizeLevel),
-                        or: layout.targetSize.height))
-            )
+            var proposal = layout
+            proposal.width = resolve(
+                either: .init(size.width, priority: proposal.systemLayoutPriority),
+                or: proposal.width)
+            proposal.height = resolve(
+                either: .init(size.height, priority: proposal.systemLayoutPriority),
+                or: proposal.height)
             
             let sizeThatFits = layoutContainer.systemLayoutFittingSize(proposal)
             
             return sizeThatFits
         }
         
-        private func resolve(either proposal: TargetSize.Value?, or original: TargetSize.Value) -> TargetSize.Value {
+        private func resolve(either proposal: LayoutFittingSize?, or original: LayoutFittingSize) -> LayoutFittingSize {
             // 10 is Apple's magic number in SwiftUI to keep "visible views" with unknown layout from "disappearing into a zero frame".
             guard let proposal = proposal, proposal.value != 10 else {
                 // If we get this far we're better trusing our own layout settings.

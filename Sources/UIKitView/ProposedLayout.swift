@@ -22,15 +22,90 @@
 
 import UIKit
 
-extension UIKitView {
-    /// Defines the sizing strategy of a view object.
+extension UILayoutPriority {
+    public static var uiKitViewDefault: UILayoutPriority = layoutResolvingLevelSize
+    static let layoutResolvingLevelSize: UILayoutPriority = .init(950)
+}
+
+public extension UIKitView {
+    /// Contains layout information for a view object.
     struct ProposedLayout: Equatable {
-        var traits: Traits
-        var targetSize: TargetSize
+        /// The priority given to system layout suggestions. To customize globally set `UILayoutPriority.uiKitViewDefault` to whatever priority makes sense for your use case.
+        var systemLayoutPriority: UILayoutPriority = .uiKitViewDefault
+        var width: LayoutFittingSize
+        var height: LayoutFittingSize
         
-        init(traits: Traits, targetSize: TargetSize) {
-            self.traits = traits
-            self.targetSize = targetSize
+        /// Creates a layout proposal for a view object.
+        public init(width: LayoutFittingSize,
+                    height: LayoutFittingSize) {
+            self.width = width
+            self.height = height
+        }
+        
+        /// Creates a layout proposal for a view object.
+        public init(width: LayoutFittingSize,
+                    height: LayoutFittingSize,
+                    systemLayoutPriority: UILayoutPriority) {
+            self.width = width
+            self.height = height
+            self.systemLayoutPriority = systemLayoutPriority
+        }
+        
+        /// Creates a layout proposal for a view object.
+        public init(size: CGSize,
+                    horizontalFit: UILayoutPriority = .fittingSizeLevel,
+                    verticalFit: UILayoutPriority = .fittingSizeLevel) {
+            width = .init(size.width, priority: horizontalFit)
+            height = .init(size.height, priority: verticalFit)
+        }
+        
+        var size: CGSize {
+            .init(width: width.value, height: height.value)
+        }
+        
+        /// The narrowest and shortest size. Equivalent to `systemLayoutFittingSize(UIView.layoutFittingCompressedSize)`.
+        ///
+        /// The layout priority for each axis is used to indicate which constraints are more important to the constraint-based layout system, allowing the system to make appropriate tradeoffs when satisfying the constraints of the system as a whole.
+        ///
+        /// - Parameter priority: The priority for constraints. Specify `.fittingSizeLevel` to get a size that is as close as possible to the target size.
+        public static func compressed(
+            horizontalFit: UILayoutPriority = .fittingSizeLevel,
+            verticalFit: UILayoutPriority = .fittingSizeLevel
+        ) -> Self {
+            .init(
+                size: UIView.layoutFittingCompressedSize,
+                horizontalFit: horizontalFit,
+                verticalFit: verticalFit)
+        }
+        
+        /// The wide and tall as possible. Equivalent to `systemLayoutFittingSize(UIView.layoutFittingExpandedSize)`.
+        
+        /// The layout priority for each axis is used to indicate which constraints are more important to the constraint-based layout system, allowing the system to make appropriate tradeoffs when satisfying the constraints of the system as a whole.
+        ///
+        /// - Parameter priority: The priority for constraints. Specify fittingSizeLevel to get a size that is as close as possible to the targetSize.
+        public static func expanded(
+            horizontalFit: UILayoutPriority = .fittingSizeLevel,
+            verticalFit: UILayoutPriority = .fittingSizeLevel
+        ) -> Self {
+            .init(
+                size: UIView.layoutFittingExpandedSize,
+                horizontalFit: horizontalFit,
+                verticalFit: verticalFit)
+        }
+        
+        /// The same size as the device's main screen. Equivalent to `UIScreen.main.bounds.size`.
+        
+        /// The layout priority for each axis is used to indicate which constraints are more important to the constraint-based layout system, allowing the system to make appropriate tradeoffs when satisfying the constraints of the system as a whole.
+        ///
+        /// - Parameter priority: The priority for constraints. Specify fittingSizeLevel to get a size that is as close as possible to the targetSize.
+        public static func device(
+            horizontalFit: UILayoutPriority = .fittingSizeLevel,
+            verticalFit: UILayoutPriority = .fittingSizeLevel
+        ) -> Self {
+            .init(
+                size: UIScreen.main.bounds.size,
+                horizontalFit: horizontalFit,
+                verticalFit: verticalFit)
         }
     }
 }

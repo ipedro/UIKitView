@@ -38,20 +38,6 @@ import SwiftUI
 ///
 /// If you expect your view to be as big as possible in some direction, ``UIKitView/ProposedLayout/expanded(horizontalFit:verticalFit:)`` might be a better option. However if you need that a view is as small as possible horizontally, but grows vertically you could write the following:
 ///
-/// ```swift
-/// UIKitViewProposedLayout(
-///     width: .compressedSize(),
-///     height: .expandedSize())
-/// ```
-///
-/// or
-///
-/// ```swift
-/// UIKitViewProposedLayout(
-///     width: .compressedSize(priority: .defaultHigh),
-///     height: .expandedSize())
-/// ```
-///
 /// ## If you're still having issues
 ///
 /// If you have already tried sensible values for `traits` and `layout` and it still doesn't look as expected, don't panic. But you're view probably needs some auto layout improvements.
@@ -75,7 +61,6 @@ public struct UIKitView<UIViewType: UIView>: View {
     
 /// Creates a view that displays a UIKit view object.
 /// - Parameters:
-///   - traits: The characteriscs that will help define the strategy to calculate the view's size. Default is ``UIKitView/Traits/flexible()``
 ///   - layout: The type of box should de view fit into. Default is ``UIKitView/ProposedLayout/compressed(horizontalFit:verticalFit:)``
 ///   - content: The view object to be displayed in SwiftUI.
 ///   - onStart: (Optional) An action to perform right after the view is created. Executes only once per instance.
@@ -84,16 +69,13 @@ public struct UIKitView<UIViewType: UIView>: View {
 ///
 /// - Returns: A UIKit view wrapped in an opaque SwiftUI view.
     public init(
-        traits: Traits = .flexible(),
-        size targetSize: TargetSize = .compressed(),
+        layout: ProposedLayout = .compressed(),
         content: @escaping Content,
         then onStart: Callback? = .none,
         onFinish: Callback? = .none,
         onStateChange: Callback? = .none
     ) {
-        self.layout = .init(
-            traits: traits,
-            targetSize: targetSize)
+        self.layout = layout
         self.content = content
         self.onStart = onStart
         self.onStateChange = onStateChange
@@ -101,36 +83,30 @@ public struct UIKitView<UIViewType: UIView>: View {
     }
     
     public var body: some View {
-        Group {
-            // We rely on `sizeThatFits(_:uiView:context:)` that was introduced in iOS 16
-            // https://developer.apple.com/documentation/swiftui/uiviewrepresentable/sizethatfits(_:uiview:context:)-9ojeu
-            if #available(iOS 16, *) {
-                LayoutView(
-                    layout: layout,
+        // We rely on `sizeThatFits(_:uiView:context:)` that was introduced in iOS 16
+        // https://developer.apple.com/documentation/swiftui/uiviewrepresentable/sizethatfits(_:uiview:context:)-9ojeu
+        if #available(iOS 16, *) {
+            LayoutContainer(
+                layout: layout,
+                content: content,
+                onStart: onStart,
+                onFinish: onFinish,
+                onStateChange: onStateChange)
+        } else {
+            // On earlier OS versions we rely on a geometry reader
+            // to read the container's width (and only the width).
+            HorizontalGeometryReader { width in
+                LayoutContainer(
+                    layout: .init(
+                        width: .init(width, priority: layout.systemLayoutPriority),
+                        height: .init(.compressedSize),
+                        systemLayoutPriority: layout.systemLayoutPriority),
                     content: content,
                     onStart: onStart,
                     onFinish: onFinish,
                     onStateChange: onStateChange)
-            } else {
-                // On earlier OS versions we rely on a geometry reader
-                // to read the container's width (and only the width).
-                HorizontalGeometryReader { width in
-                    LayoutView(
-                        layout: .init(
-                            traits: layout.traits,
-                            targetSize: .init(
-                                width: .init(width, priority: layout.traits.layoutPriority),
-                                height: layout.targetSize.height)),
-                        content: content,
-                        onStart: onStart,
-                        onFinish: onFinish,
-                        onStateChange: onStateChange)
-                }
             }
         }
-        .fixedSize(
-            horizontal: layout.traits.isHorizontalSizeFixed,
-            vertical: layout.traits.isVerticalSizeFixed)
     }
 }
 
@@ -157,12 +133,12 @@ struct UIKitView_Previews: PreviewProvider {
                 .background(Color.accentColor)
                 .cornerRadius(24)
                 
-                UIKitView(traits: .fixedSize()) {
+                UIKitView {
                     UISwitch()
                 } then: {
                     $0.backgroundColor = .systemRed.withAlphaComponent(0.1)
                 }
-                
+                .fixedSize()
                 
                 UIKitView {
                     UISwitch()
@@ -186,7 +162,7 @@ struct UIKitView_Previews: PreviewProvider {
                 }
                 
                 HStack(spacing: 24) {
-                    UIKitView(traits: .flexible(layoutPriority: .fittingSizeLevel)) {
+                    UIKitView {
                         UIImageView(image: .init(systemName: "checkmark"))
                     } then: {
                         $0.contentMode = .scaleAspectFill

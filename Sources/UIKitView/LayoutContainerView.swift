@@ -78,9 +78,9 @@ extension UIKitView {
         @discardableResult
         func systemLayoutFittingSize(_ proposal: ProposedLayout) -> CGSize {
             let newSize = view.systemLayoutSizeFitting(
-                proposal.targetSize.size,
-                withHorizontalFittingPriority: proposal.targetSize.width.priority,
-                verticalFittingPriority: proposal.targetSize.height.priority)
+                proposal.size,
+                withHorizontalFittingPriority: proposal.width.priority,
+                verticalFittingPriority: proposal.height.priority)
             
             if newSize != contentSize,
                newSize.height != .infinity,
