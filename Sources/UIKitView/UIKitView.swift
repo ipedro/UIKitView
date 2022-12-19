@@ -47,11 +47,11 @@ import SwiftUI
 /// The system layout engine relies also in other relations between views such as [content compression resistance priority](https://developer.apple.com/documentation/uikit/uiview/1622465-contentcompressionresistanceprio) and [content hugging priority](https://developer.apple.com/documentation/uikit/uiview/1622556-contenthuggingpriority) – that determine how much it fights to retain its intrinsic content size when available space is less than or greater than it needs, respectively. Play around with them.
 ///
 /// - Note: Size calculations are performed by calling [systemLayoutSizeFitting(_:withHorizontalFittingPriority:verticalFittingPriority:)](https://developer.apple.com/documentation/uikit/uiview/1622623-systemlayoutsizefitting)
-public struct UIKitView<UIViewType: UIView>: View {
+public struct UIKitView<V: UIView>: View {
     /// Called after view events.
-    public typealias Callback = (UIViewType) -> Void
+    public typealias Callback = (V) -> Void
     /// A UIKit view object builder.
-    public typealias Content = () -> UIViewType
+    public typealias Content = () -> V
     
     var layout: ProposedLayout
     var content: Content
