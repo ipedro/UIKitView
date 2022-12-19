@@ -25,7 +25,7 @@ import UIKit
 extension UIKitView {
     /// A container view that is able to calulate the size of its content based on different layout proposals.
     final class LayoutContainerView: UIView {
-        let view: V
+        let view: UIViewType
         
         private(set) var layout: ProposedLayout?
         
@@ -39,7 +39,7 @@ extension UIKitView {
             view.trailingAnchor.constraint(equalTo: trailingAnchor),
             view.bottomAnchor.constraint(equalTo: bottomAnchor)]
         
-        init(_ view: V) {
+        init(_ view: UIViewType) {
             self.view = view
             super.init(frame: view.frame)
             setupViews()
