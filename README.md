@@ -69,7 +69,6 @@ var body: some View {
                 .background(Color.primary.opacity(0.1))
                 .aspectRatio(contentMode: .fill)
                 
-                // Should look exactly the same
                 UIKitView {
                     UILabel()
                 } then: {
