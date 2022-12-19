@@ -10,8 +10,8 @@ Sample usage:
 
 ```swift
 var body: some View {
-        ScrollView {
-        VStack(spacing: 24) {
+    ScrollView {
+        VStack(spacing: 36) {
             UIKitView {
                 UILabel()
             } then: {
@@ -23,23 +23,26 @@ var body: some View {
                         .underlineStyle: NSNumber(value: 1),
                         .font: UIFont.preferredFont(forTextStyle: .headline),
                         .foregroundColor: UIColor.systemBackground,
-                        .backgroundColor: UIColor.systemPink
+                        .backgroundColor: UIColor.systemGreen.withAlphaComponent(0.25)
                     ]
                 )
             }
             .padding()
-            .background(Color.primary.opacity(0.1))
+            .background(Color.accentColor)
             .cornerRadius(24)
             
-            UIKitView {
-                UIButton(type: .roundedRect)
+            UIKitView(traits: .fixedSize()) {
+                UISwitch()
             } then: {
-                $0.backgroundColor = .label.withAlphaComponent(0.1)
-                $0.showsTouchWhenHighlighted = true
-                $0.setTitle("I'm a button", for: .normal)
+                $0.backgroundColor = .systemRed.withAlphaComponent(0.1)
             }
-            .cornerRadius(12)
-            .padding(.vertical)
+            
+            
+            UIKitView {
+                UISwitch()
+            } then: {
+                $0.backgroundColor = .systemRed.withAlphaComponent(0.1)
+            }
             
             HStack(spacing: 24) {
                 // Body Text
@@ -57,13 +60,14 @@ var body: some View {
             }
             
             HStack(spacing: 24) {
-                UIKitView {
+                UIKitView(traits: .flexible(layoutPriority: .fittingSizeLevel)) {
                     UIImageView(image: .init(systemName: "checkmark"))
                 } then: {
-                    $0.contentMode = .scaleAspectFit
+                    $0.contentMode = .scaleAspectFill
                 }
                 .padding()
                 .background(Color.primary.opacity(0.1))
+                .aspectRatio(contentMode: .fill)
                 
                 // Should look exactly the same
                 UIKitView {

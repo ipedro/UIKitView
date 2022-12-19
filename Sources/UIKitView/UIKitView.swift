@@ -137,7 +137,7 @@ public struct UIKitView<UIViewType: UIView>: View {
 struct UIKitView_Previews: PreviewProvider {
     static var previews: some View {
         ScrollView {
-            VStack(alignment: .center) {
+            VStack(spacing: 36) {
                 UIKitView {
                     UILabel()
                 } then: {
@@ -149,23 +149,26 @@ struct UIKitView_Previews: PreviewProvider {
                             .underlineStyle: NSNumber(value: 1),
                             .font: UIFont.preferredFont(forTextStyle: .headline),
                             .foregroundColor: UIColor.systemBackground,
-                            .backgroundColor: UIColor.systemPink
+                            .backgroundColor: UIColor.systemGreen.withAlphaComponent(0.25)
                         ]
                     )
                 }
                 .padding()
-                .background(Color.primary.opacity(0.1))
+                .background(Color.accentColor)
                 .cornerRadius(24)
+                
+                UIKitView(traits: .fixedSize()) {
+                    UISwitch()
+                } then: {
+                    $0.backgroundColor = .systemRed.withAlphaComponent(0.1)
+                }
+                
                 
                 UIKitView {
                     UISwitch()
                 } then: {
-                    $0.backgroundColor = .label.withAlphaComponent(0.1)
-//                    $0.showsTouchWhenHighlighted = true
-//                    $0.setTitle("I'm a button", for: .normal)
+                    $0.backgroundColor = .systemRed.withAlphaComponent(0.1)
                 }
-//                .cornerRadius(12)
-//                .padding(.vertical)
                 
                 HStack(spacing: 24) {
                     // Body Text
@@ -183,13 +186,14 @@ struct UIKitView_Previews: PreviewProvider {
                 }
                 
                 HStack(spacing: 24) {
-                    UIKitView {
+                    UIKitView(traits: .flexible(layoutPriority: .fittingSizeLevel)) {
                         UIImageView(image: .init(systemName: "checkmark"))
                     } then: {
                         $0.contentMode = .scaleAspectFill
                     }
                     .padding()
                     .background(Color.primary.opacity(0.1))
+                    .aspectRatio(contentMode: .fill)
                     
                     // Should look exactly the same
                     UIKitView {

@@ -31,18 +31,19 @@ extension UIKitView {
         
         /// Adapts the view to fit the available space.
         ///
-        /// This is the default system behavior.
-        public static func flexible(priority: UILayoutPriority = .init(950)) -> Self { .init(layoutPriority: priority) }
+        /// The default layout priority is (950), just short of required (1000) but way higher than defaultHigh (750). Play around with this value.
+        public static func flexible(layoutPriority: UILayoutPriority = .init(950)) -> Self { .init(layoutPriority: layoutPriority) }
         
         /// Fixes the view at its ideal size in the specified dimensions.
         ///
         /// The fixing of the axes can be optionally specified in one or both dimensions. For example, if you horizontally fix a text view before wrapping it in the frame view, you’re telling the text view to maintain its ideal width. The view calculates this to be the space needed to represent the entire string.
         ///
         /// This can result in the view exceeding the parent’s bounds, which may or may not be the effect you want.
-        public static func fixedSize(horizontal: Bool = true,
+        public static func fixedSize(layoutPriority: UILayoutPriority = .fittingSizeLevel,
+                                     horizontal: Bool = true,
                                      vertical: Bool = true) -> Self {
             .init(
-                layoutPriority: .fittingSizeLevel,
+                layoutPriority: layoutPriority,
                 isHorizontalSizeFixed: horizontal,
                 isVerticalSizeFixed: vertical)
         }
