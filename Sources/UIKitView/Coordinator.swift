@@ -22,7 +22,33 @@
 
 import UIKit
 
-public extension UILayoutPriority {
-    /// Highest value that is not required. Equivalent to 950.
-    static let highestSizeLevel = UILayoutPriority(950)
+extension UIKitView {
+    /// Responsible for managing a UIKit view lifecycle and interfacing with SwiftUI.
+    final class Coordinator {
+        private(set) var container: LayoutContainerView?
+        let onStart: Callback?
+        let onFinish: Callback?
+        
+        init(onStart: Callback?,
+             onFinish: Callback?) {
+            self.onStart = onStart
+            self.onFinish = onFinish
+        }
+        
+        func makeLayoutContainer(with content: Content) -> LayoutContainerView {
+            guard let cached = container else {
+                let layoutContainer = LayoutContainerView(content())
+                onStart?(layoutContainer.view)
+                self.container = layoutContainer
+                return layoutContainer
+            }
+            return cached
+        }
+        
+        func finish() {
+            guard let contentView = container?.view else { return }
+            onFinish?(contentView)
+            container = nil
+        }
+    }
 }

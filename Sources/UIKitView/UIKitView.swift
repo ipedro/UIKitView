@@ -22,7 +22,7 @@
 
 import SwiftUI
 
-/// A view that contains a UIKit view object.
+/// A view that displays a UIKit view object.
 ///
 /// ## Sizing Strategy
 ///
@@ -36,7 +36,7 @@ import SwiftUI
 ///
 /// If your view doesn't look as expected out-of-the box, try changing layout priorities and the target sizes.
 ///
-/// If you expect your view to be as big as possible in some direction, ``UIKitViewProposedLayout/expanded(horizontalFit:verticalFit:)`` might be a better option. However if you need that a view is as small as possible horizontally, but grows vertically you could write the following:
+/// If you expect your view to be as big as possible in some direction, ``UIKitView/ProposedLayout/expanded(horizontalFit:verticalFit:)`` might be a better option. However if you need that a view is as small as possible horizontally, but grows vertically you could write the following:
 ///
 /// ```swift
 /// UIKitViewProposedLayout(
@@ -52,30 +52,31 @@ import SwiftUI
 ///     height: .expandedSize())
 /// ```
 ///
-/// And if even this doesn't solve it, don't worry.
+/// ## If you're still having issues
 ///
-/// ## Let's fix your view
+/// If you have already tried sensible values for `traits` and `layout` and it still doesn't look as expected, don't panic. But you're view probably needs some auto layout improvements.
 ///
-/// Auto Layout relies not only on layout constraints, but also in other relations such as [content compression resistance priority](https://developer.apple.com/documentation/uikit/uiview/1622465-contentcompressionresistanceprio) and [content hugging priority](https://developer.apple.com/documentation/uikit/uiview/1622556-contenthuggingpriority) – that determine how much it fights to retain its intrinsic content size when available space is less than or greater than it needs, respectively. Play around with them.
+/// Please double check your constraints and try to lower some of their priorities to `defaultHigh` intead of `required`.
+///
+/// The system layout engine relies also in other relations between views such as [content compression resistance priority](https://developer.apple.com/documentation/uikit/uiview/1622465-contentcompressionresistanceprio) and [content hugging priority](https://developer.apple.com/documentation/uikit/uiview/1622556-contenthuggingpriority) – that determine how much it fights to retain its intrinsic content size when available space is less than or greater than it needs, respectively. Play around with them.
 ///
 /// - Note: Size calculations are performed by calling [systemLayoutSizeFitting(_:withHorizontalFittingPriority:verticalFittingPriority:)](https://developer.apple.com/documentation/uikit/uiview/1622623-systemlayoutsizefitting)
 public struct UIKitView<V: UIView>: View {
-    /// A closure that is called after a view lifecycle event
+    /// Called after view events.
     public typealias Callback = (V) -> Void
-    /// A UIKit view object.
+    /// A UIKit view object builder.
     public typealias Content = () -> V
     
-    var sizing: UIKitViewSizingStrategy
-    var layout: UIKitViewProposedLayout
+    var layout: ProposedLayout
     var content: Content
     var onStart: Callback?
     var onStateChange: Callback?
     var onFinish: Callback?
     
-/// Creates a view that contains a UIKit view object.
+/// Creates a view that displays a UIKit view object.
 /// - Parameters:
-///   - layout: The type of box should de view fit into. Default is ``UIKitViewProposedLayout/compressed(horizontalFit:verticalFit:)``
-///   - sizing: Defines the view sizing strategy. Default is ``UIKitViewSizingStrategy/flexible()``
+///   - traits: The characteriscs that will help define the strategy to calculate the view's size. Default is ``UIKitView/Traits/flexible()``
+///   - layout: The type of box should de view fit into. Default is ``UIKitView/ProposedLayout/compressed(horizontalFit:verticalFit:)``
 ///   - content: The view object to be displayed in SwiftUI.
 ///   - onStart: (Optional) An action to perform right after the view is created. Executes only once per instance.
 ///   - onStateChange: (Optional) Called when the state of the specified view has new information from SwiftUI.
@@ -83,15 +84,16 @@ public struct UIKitView<V: UIView>: View {
 ///
 /// - Returns: A UIKit view wrapped in an opaque SwiftUI view.
     public init(
-        sizing: UIKitViewSizingStrategy = .flexible(),
-        layout: UIKitViewProposedLayout = .compressed(),
+        traits: Traits = .flexible(),
+        size targetSize: TargetSize = .compressed(),
         content: @escaping Content,
         then onStart: Callback? = .none,
         onFinish: Callback? = .none,
         onStateChange: Callback? = .none
     ) {
-        self.sizing = sizing
-        self.layout = layout
+        self.layout = .init(
+            traits: traits,
+            targetSize: targetSize)
         self.content = content
         self.onStart = onStart
         self.onStateChange = onStateChange
@@ -103,7 +105,7 @@ public struct UIKitView<V: UIView>: View {
             // We rely on `sizeThatFits(_:uiView:context:)` that was introduced in iOS 16
             // https://developer.apple.com/documentation/swiftui/uiviewrepresentable/sizethatfits(_:uiview:context:)-9ojeu
             if #available(iOS 16, *) {
-                _UIKitViewRepresenting(
+                LayoutView(
                     layout: layout,
                     content: content,
                     onStart: onStart,
@@ -111,11 +113,14 @@ public struct UIKitView<V: UIView>: View {
                     onStateChange: onStateChange)
             } else {
                 // On earlier OS versions we rely on a geometry reader
-                // to read the container'shorizontal axis
+                // to read the container's width (and only the width).
                 HorizontalGeometryReader { width in
-                    _UIKitViewRepresenting(
+                    LayoutView(
                         layout: .init(
-                            width: .init(width, priority: .highestSizeLevel)),
+                            traits: layout.traits,
+                            targetSize: .init(
+                                width: .init(width, priority: layout.traits.layoutPriority),
+                                height: layout.targetSize.height)),
                         content: content,
                         onStart: onStart,
                         onFinish: onFinish,
@@ -124,15 +129,15 @@ public struct UIKitView<V: UIView>: View {
             }
         }
         .fixedSize(
-            horizontal: sizing.isHorizontalSizeFixed,
-            vertical: sizing.isVerticalSizeFixed)
+            horizontal: layout.traits.isHorizontalSizeFixed,
+            vertical: layout.traits.isVerticalSizeFixed)
     }
 }
 
 struct UIKitView_Previews: PreviewProvider {
     static var previews: some View {
         ScrollView {
-            VStack(spacing: 24) {
+            VStack(alignment: .center) {
                 UIKitView {
                     UILabel()
                 } then: {
@@ -153,14 +158,14 @@ struct UIKitView_Previews: PreviewProvider {
                 .cornerRadius(24)
                 
                 UIKitView {
-                    UIButton(type: .roundedRect)
+                    UISwitch()
                 } then: {
                     $0.backgroundColor = .label.withAlphaComponent(0.1)
-                    $0.showsTouchWhenHighlighted = true
-                    $0.setTitle("I'm a button", for: .normal)
+//                    $0.showsTouchWhenHighlighted = true
+//                    $0.setTitle("I'm a button", for: .normal)
                 }
-                .cornerRadius(12)
-                .padding(.vertical)
+//                .cornerRadius(12)
+//                .padding(.vertical)
                 
                 HStack(spacing: 24) {
                     // Body Text
@@ -181,7 +186,7 @@ struct UIKitView_Previews: PreviewProvider {
                     UIKitView {
                         UIImageView(image: .init(systemName: "checkmark"))
                     } then: {
-                        $0.contentMode = .scaleAspectFit
+                        $0.contentMode = .scaleAspectFill
                     }
                     .padding()
                     .background(Color.primary.opacity(0.1))
