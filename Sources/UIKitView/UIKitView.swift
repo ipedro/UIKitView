@@ -6,13 +6,11 @@ import SwiftUI
 
  ```swift
      UIKitView {
-         HxDLabel()
+         UILabel()
      } onChange: {
          // this closure gets called the first time the view is drawn
          // and then whenever view state is updated.
-         $0.textColor = .neutral800
          $0.adjustsFontForContentSizeCategory = true
-         $0.textStyle = .mediumBodyRegular
          $0.numberOfLines = 0
          $0.text = "Lorem Ipsum dolor sit amet."
      }
@@ -22,15 +20,13 @@ import SwiftUI
  
  ```swift
  struct MyView: View {
-     @State var icon: Icon24 = .random()
+     @Binding var myIcon: UIImage?
      
      var body: some View {
          UIKitView {
-             HxDButton(configuration: .primaryAnchor()) { _ in
-                self.icon = .random()
-             }
+             UIImageView()
          } onChange: {
-             $0.content = .iconAndText(icon.image, icon.name)
+             $0.image = myIcon // gets called whenever `myIcon` is updated
          }
      }
  }
