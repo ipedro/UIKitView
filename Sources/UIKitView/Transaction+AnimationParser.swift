@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 
 // MARK: - Transaction Extension
@@ -70,7 +71,6 @@ private struct AnimationParser {
         case ["mass", "stiffness", "damping", "_initialVelocity"]:
             return SpringAnimation(duration: 0.5, mirror: mirror)
         default:
-            print(#function, mirror)
             return nil
         }
     }
@@ -82,9 +82,9 @@ protocol ParsableAnimation {
     func propertyAnimator(speedMultiplier: CGFloat?) -> UIViewPropertyAnimator
 }
 
-// MARK: - InterpolatingSpringAnimation
+// MARK: - SpringAnimation
 
-/// Equivalent to `.interpolatingSpring(mass:, stiffness:, damping:, initialVelocity:)`
+/// Result of [interpolatingSpring(mass:stiffness:damping:initialVelocity:)](https://developer.apple.com/documentation/swiftui/animation/interpolatingspring(mass:stiffness:damping:initialvelocity:))
 private struct SpringAnimation: ParsableAnimation {
     var duration: TimeInterval
     var mass: Double
@@ -133,7 +133,7 @@ private struct SpringAnimation: ParsableAnimation {
 
 // MARK: - BezierPathAnimation
 
-/// Equivalent to bezier animations like `.easeIn`, `.easeOut`, `.easeInOut`, etc
+/// Result of bezier animations like [.easeIn](https://developer.apple.com/documentation/swiftui/animation/easein), [.easeOut](https://developer.apple.com/documentation/swiftui/animation/easeout), [.linear](https://developer.apple.com/documentation/swiftui/animation/linear), etc.
 private struct BezierPathAnimation: ParsableAnimation {
     /// The duration of the animation, in seconds.
     var duration: TimeInterval
@@ -228,7 +228,7 @@ private struct BezierPathAnimation: ParsableAnimation {
 
 // MARK: - FluidSpringAnimation
 
-/// Equivalent to `.spring(response:dampingFraction:blendDuration:)` and `.responsiveSpring(response:dampingFraction:blendDuration:)`
+/// Result of [spring(response:dampingFraction:blendDuration:)](https://developer.apple.com/documentation/swiftui/animation/spring(response:dampingfraction:blendduration:)) and [interactiveSpring(response:dampingFraction:blendDuration:)](https://developer.apple.com/documentation/swiftui/animation/interactivespring(response:dampingfraction:blendduration:)).
 private struct FluidSpringAnimation: ParsableAnimation {
     var duration: Double
     var dampingFraction: Double
@@ -261,7 +261,7 @@ private struct FluidSpringAnimation: ParsableAnimation {
 
 // MARK: - Speed Modififer
 
-/// Equivalent to the `.speed(_:)` modififer.
+/// An animation wrapped with the [speed(_:)](https://developer.apple.com/documentation/swiftui/animation/speed(_:)) modififer.
 private struct SpeedAnimation: ParsableAnimation {
     var speed: Double
     var base: any ParsableAnimation
@@ -275,7 +275,6 @@ private struct SpeedAnimation: ParsableAnimation {
             case "speed": speed = child.value as? Double
             case "animation": animation = AnimationParser(Mirror(reflecting: child.value)).animation()
             default:
-                print(#function, mirror)
                 break
             }
         }
@@ -290,5 +289,92 @@ private struct SpeedAnimation: ParsableAnimation {
     
     func propertyAnimator(speedMultiplier: CGFloat?) -> UIViewPropertyAnimator {
         base.propertyAnimator(speedMultiplier: speedMultiplier ?? speed)
+    }
+}
+
+// MARK: - Previews
+
+struct AnimationParser_Previews: PreviewProvider {
+    static var previews: some View {
+        AnimationParsingDemo()
+    }
+}
+
+struct AnimationParsingDemo: View {
+    @State var count = 1
+    @State var showFrames = true
+    
+    var body: some View {
+        ScrollView {
+            VStack {
+                comparison(group: "spring()")
+                    .background(Color.red)
+                    .animation(.spring(), value: count)
+                
+                comparison(group: "interactiveSpring()")
+                    .background(Color.purple)
+                    .animation(.interactiveSpring(), value: count)
+                
+                comparison(group: "linear")
+                    .background(Color.blue)
+                    .animation(.linear, value: count)
+                
+                comparison(group: "interpolatingSpring()")
+                    .background(Color.gray)
+                    .animation(.interpolatingSpring(stiffness: 0.5, damping: 0.825), value: count)
+                
+                comparison(group: "default")
+                    .background(Color.green)
+                    .animation(.default, value: count)
+                
+                comparison(group: "default.speed(0.2)")
+                    .background(Color.pink)
+                    .animation(.default.speed(0.2), value: count)
+                
+                Spacer(minLength: 40)
+                
+                HStack(spacing: 24) {
+                    Button {
+                        count += 1
+                    } label: {
+                        Text("Animate")
+                    }
+                    
+                    Button {
+                        showFrames.toggle()
+                    } label: {
+                        Text(showFrames ? "Hide frames" : "Show frames")
+                    }
+                }
+                .padding()
+            }
+            .padding()
+        }
+    }
+    
+    @ViewBuilder private func comparison(group title: String) -> some View {
+        applyStyle {
+            UIKitView {
+                UILabel()
+            } onChange: {
+                $0.text = title
+            }
+        }
+        .inspectView(showFrames, name: "UILabel")
+        
+        applyStyle {
+            Text(title)
+        }
+        .inspectView(showFrames, name: "SwiftUI.Text")
+        
+        Divider()
+            .background(Color.gray)
+    }
+    
+    func applyStyle<V: View>(view: () -> V) -> some View {
+        view()
+            .fixedSize()
+            .padding(4)
+            .frame(width: count % 2 == 0 ? 350 : nil)
     }
 }
