@@ -298,7 +298,6 @@ public struct UIKitView<UIViewType: UIView>: View {
         /// Updates the state of the specified view with new information from SwiftUI.
         public func updateUIView(_ layoutContainer: _LayoutContainerView, context: Context) {
             context.transaction.animateChanges { animated in
-                print(animated, context.transaction.animation as Any, context.transaction.parsedAnimation as Any)
                 self.onChange?(layoutContainer.view, context)
                 layoutContainer.systemLayoutFittingSize(layout)
             }
@@ -466,7 +465,9 @@ public extension CGSize {
 
 // MARK: - Previews
 
+@available(iOS 16.0, *)
 struct UIKitView_Previews: PreviewProvider {
+    static var inspectViews = true
     static var previews: some View {
         ScrollView {
             VStack(spacing: 36) {
@@ -485,7 +486,8 @@ struct UIKitView_Previews: PreviewProvider {
                         ]
                     )
                 }
-                .padding()
+                .inspectView(inspectViews)
+                .padding(24)
                 .background(Color.accentColor)
                 .cornerRadius(24)
                 
@@ -494,6 +496,7 @@ struct UIKitView_Previews: PreviewProvider {
                 } onChange: {
                     $0.backgroundColor = .systemRed.withAlphaComponent(0.1)
                 }
+                .inspectView(inspectViews)
                 .fixedSize()
                 
                 UIKitView {
@@ -501,10 +504,12 @@ struct UIKitView_Previews: PreviewProvider {
                 } onChange: {
                     $0.backgroundColor = .systemRed.withAlphaComponent(0.1)
                 }
+                .inspectView(inspectViews)
                 
                 HStack(spacing: 24) {
                     // Body Text
                     Text("Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type.")
+                        .inspectView(inspectViews)
                     
                     // Should look and behave exactly the same
                     UIKitView {
@@ -515,6 +520,7 @@ struct UIKitView_Previews: PreviewProvider {
                         $0.numberOfLines = 0
                         $0.text = "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type."
                     }
+                    .inspectView(inspectViews)
                 }
                 
                 HStack(spacing: 24) {
@@ -523,6 +529,7 @@ struct UIKitView_Previews: PreviewProvider {
                     } onChange: {
                         $0.contentMode = .scaleAspectFill
                     }
+                    .inspectView(inspectViews)
                     .padding()
                     .background(Color.primary.opacity(0.1))
                     .aspectRatio(contentMode: .fill)
@@ -534,6 +541,7 @@ struct UIKitView_Previews: PreviewProvider {
                         $0.numberOfLines = 0
                         $0.text = "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type."
                     }
+                    .inspectView(inspectViews)
                 }
             }
             .padding()
